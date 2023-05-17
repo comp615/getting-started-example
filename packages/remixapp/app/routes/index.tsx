@@ -1,5 +1,5 @@
-import {Header} from 'header';
-import {Footer} from 'footer';
+import {Header} from '@cityblock/test-npm-header';
+import {Footer} from '@cityblock/test-npm-footer';
 
 export default function Index() {
     return (
