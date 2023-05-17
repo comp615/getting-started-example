@@ -2,6 +2,7 @@ name: Typescript Mixer PR workflow
 run-name: Typescript Monorepo PR workflow (${{ github.ref }})
 on:
   pull_request:
+    types: [opened, synchronize, closed]
     branches:
       - main
 # Cancel outdated jobs when an open PR is updated
@@ -18,11 +19,10 @@ jobs:
         NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
         # commons: cache_check
-        - name: Check out repo code
+        - name: Check out repo code (with history)
           uses: actions/checkout@v3
           with:
             fetch-depth: 50
-            # ref: ${{ github.event.pull_request.head.sha }}
         # Only install dependencies if cache does not exist
         - name: Install dependencies
           # if: steps.cache.outputs.cache-hit != 'true'
@@ -35,9 +35,13 @@ jobs:
         - name: Typecheck
           run: npx lerna run build
         - name: Release CI Stuff
-          run: echo ${{ github.ref }} && echo ${{ github.event.pull_request.merged == true }} && echo ${{ github.event.number }}
-        - name: Release actually
+          run: echo ${{ github.ref }} && echo ${{ github.head }} && echo ${{ github.merge_commit_sha }} && echo ${{ github.event.pull_request.merged == true }} && echo ${{ github.event.number }}
+        - name: Release pre-merge (Does not support amended commits)
+          if: !github.event.pull_request.merged
           run: npx lerna publish --canary --yes --preid ci.${{ github.event.number }} --dist-tag ci --summary-file --loglevel silly
+        - name: Release post-merge
+          if: github.event.pull_request.merged
+          run: npx lerna publish --canary --dist-tag canary --summary-file --yes
         - name: Echo output
           id: generate-message
           run: |
@@ -50,7 +54,7 @@ jobs:
             echo "| --- | --- |" >> $GITHUB_OUTPUT
             cat lerna-publish-summary.json | jq -r '(.[] | @text"| \(.packageName) | \(.version) |")' >> $GITHUB_OUTPUT
             echo "$DELIMITER" >> $GITHUB_OUTPUT
-        - name: Update comment
+        - name: Update PR comment
           uses: marocchino/sticky-pull-request-comment@v2
           with:
             message: ${{ steps.generate-message.outputs.message }}
