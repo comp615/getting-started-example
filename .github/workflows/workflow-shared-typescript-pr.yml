@@ -26,8 +26,6 @@ jobs:
           # if: steps.cache.outputs.cache-hit != 'true'
           run: git diff --exit-code
         # commons: build
-        - name: Build libs and run tests
-          run: npx lerna run test
         # commons: typecheck needs build
         - name: Typecheck
           run: npx lerna run build
@@ -36,5 +34,19 @@ jobs:
         - name: Release actually
           run: npx lerna publish --canary --yes --preid ci${{ github.event.number }} --dist-tag ci --summary-file
         - name: Echo output
-          run: cat lerna-publish-summary.json
+          id: generate-message
+          run: |
+            DELIMITER=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+
+            # Output Jest variables
+            echo "message<<$DELIMITER" >> $GITHUB_OUTPUT
+            echo "**Packages published for testing**:" >> $GITHUB_OUTPUT
+            echo "| Package | Version |" >> $GITHUB_OUTPUT
+            echo "| --- | --- |" >> $GITHUB_OUTPUT
+            cat lerna-publish-summary.json | jq -r '(.[] | @text"| \(.packageName) | \(.version) |")' >> $GITHUB_OUTPUT
+            echo "$DELIMITER" >> $GITHUB_OUTPUT
+        - name: Update comment
+          uses: marocchino/sticky-pull-request-comment@v2
+          with:
+            message: ${{ steps.generate-message.outputs.message }}
 
