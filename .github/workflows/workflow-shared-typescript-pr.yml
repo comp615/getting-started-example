@@ -37,7 +37,7 @@ jobs:
         - name: Release CI Stuff
           run: echo ${{ github.ref }} && echo ${{ github.head }} && echo ${{ github.merge_commit_sha }} && echo ${{ github.event.pull_request.merged == true }}
         - name: Release pre-merge (Does not support amended commits)
-          if: !github.event.pull_request.merged
+          if: github.event.pull_request.merged != true
           run: npx lerna publish --canary --yes --preid ci.${{ github.event.number }} --dist-tag ci --summary-file --loglevel silly
         - name: Release post-merge
           if: github.event.pull_request.merged
