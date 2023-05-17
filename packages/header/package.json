@@ -1,6 +1,6 @@
 {
   "name": "@cityblock/test-npm-header",
-  "version": "0.0.2-dev-ccroomworkflow.17+1d9f423",
+  "version": "0.0.2-alpha.0",
   "main": "dist/index.js",
   "scripts": {
     "build": "rimraf dist && rollup --config",
@@ -21,6 +21,5 @@
   },
   "devDependencies": {
     "rimraf": "^3.0.2"
-  },
-  "gitHead": "1d9f42362681ef8658cb1e0c6fab7a3d6013cc44"
+  }
 }
