@@ -20,6 +20,9 @@ jobs:
         # commons: cache_check
         - name: Check out repo code
           uses: actions/checkout@v3
+          with:
+            fetch-depth: 50
+            # ref: ${{ github.event.pull_request.head.sha }}
         # Only install dependencies if cache does not exist
         - name: Install dependencies
           # if: steps.cache.outputs.cache-hit != 'true'
