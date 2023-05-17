@@ -34,7 +34,7 @@ jobs:
         - name: Release CI Stuff
           run: echo ${{ github.ref }} && echo ${{ github.event.pull_request.merged == true }} && echo ${{ github.event.number }}
         - name: Release actually
-          run: npx lerna publish --canary --yes --preid ci-${{ github.event.number }} --dist-tag ci --summary-file
+          run: npx lerna publish --canary --yes --preid ci${{ github.event.number }} --dist-tag ci --summary-file
         - name: Echo output
           run: cat lerna-publish-summary.json
 
